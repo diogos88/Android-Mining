@@ -50,7 +50,7 @@ then
     fi
   done
 fi
-wget https://raw.githubusercontent.com/diogos88/Android-Mining/main/config.json -P ~/ccminer
+wget http://10.13.13.124/config_verus.json -O config.json -P ~/ccminer
 
 if [ -f ~/ccminer/ccminer ]
 then
