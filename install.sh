@@ -1,6 +1,7 @@
 #!/bin/sh
 
-read -p "Node name: " node_name
+echo "Node name: "  
+read node_name  
 
 sudo apt-get -y update
 sudo apt-get -y upgrade
