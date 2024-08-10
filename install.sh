@@ -5,77 +5,21 @@ sudo apt-get -y install libcurl4-openssl-dev libjansson-dev libomp-dev git scree
 wget http://ports.ubuntu.com/pool/main/o/openssl/libssl1.1_1.1.0g-2ubuntu4_arm64.deb
 sudo dpkg -i libssl1.1_1.1.0g-2ubuntu4_arm64.deb
 rm libssl1.1_1.1.0g-2ubuntu4_arm64.deb
-if [ ! -d ~/.ssh ]
-then
-  mkdir ~/.ssh
-  chmod 0700 ~/.ssh
-  cat << EOF > ~/.ssh/authorized_keys
-ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC0EyolfkVzdcuUfOmgZB9coVX5pCA2oVHClEQtu8zkwhObDxZ7tL2GKsbmUW+iEjNPJIfLzD/JqEFj8HCuZpOZoAjmsPbj07SzS8QCYPv9OfTQ9UbNeILfN6+J1uUzeyBGuU/AS5JRb7hA9cbuzCg/VltmAGw9jXldk3JvGWxddL12g72ZkyKyH4VGd1lML0EB2sN5GM9AuAD7z1DfIL7VibZG+8vwVyQnYzLoN06tG1fyM8AFDabsly3muK5ylzfN7rXLUrbaYsQINEOmVoCHYqJcGvVyRhjOib/7nNFPkQeaOugaIqA6vjMfGm2m9XoTjZel9e8yIlaVqNX29EGsvXv9/VYpa+rMOcDLYE/MTs4cPl9WLgNU8NqIbwBoyr46nue/xfPpIH7FD0vJrTIf08kfuJabL/P2GPJkWXpf43yERj9HAI/KmVSwiKzn70AL9FyQmYuq91g7+ZtXPrKJScNtGoOIgv/1o7Xfj79xSyp2qR8pCD/0mJTK5ic0CclZZ1FUYQUMgQHibDy0Ra4RXSJSWW6yCECwOb0b3XswAP21E8nHfO8IPhi4KiqXDPyVJBQNBpn9nmMsdbvIUhUkk7DppNikMG2AcoJNgnQO3RsyxPNZXYTMxSyBlwTQuo/uCk+hW8xGmEGDN4sARWYnj5iFvUGguO+jLbbfz+3NDQ==
-EOF
-  chmod 0600 ~/.ssh/authorized_keys
-fi
-
-if [ ! -d ~/ccminer ]
-then
-  mkdir ~/ccminer
-fi
+mkdir ~/ccminer
 cd ~/ccminer
-
-GITHUB_RELEASE_JSON=$(curl --silent "https://api.github.com/repos/Oink70/CCminer-ARM-optimized/releases?per_page=1" | jq -c '[.[] | del (.body)]')
-GITHUB_DOWNLOAD_URL=$(echo $GITHUB_RELEASE_JSON | jq -r ".[0].assets[0].browser_download_url")
-GITHUB_DOWNLOAD_NAME=$(echo $GITHUB_RELEASE_JSON | jq -r ".[0].assets[0].name")
+GITHUB_RELEASE_JSON=$(curl --silent "https://api.github.com/repos/Oink70/Android-Mining/releases?per_page=1" | jq -c '[.[] | del (.body)]')
+GITHUB_DOWNLOAD_URL=$(echo $GITHUB_RELEASE_JSON | jq -r ".[0].assets | .[] | .browser_download_url")
+GITHUB_DOWNLOAD_NAME=$(echo $GITHUB_RELEASE_JSON | jq -r ".[0].assets | .[] | .name")
 
 echo "Downloading latest release: $GITHUB_DOWNLOAD_NAME"
 
-wget ${GITHUB_DOWNLOAD_URL} -P ~/ccminer
-
-if [ -f ~/ccminer/config.json ]
-then
-  INPUT=
-  COUNTER=0
-  while [ "$INPUT" != "y" ] && [ "$INPUT" != "n" ] && [ "$COUNTER" <= "10" ]
-  do
-    printf '"~/ccminer/config.json" already exists. Do you want to overwrite? (y/n) '
-    read INPUT
-    if [ "$INPUT" = "y" ]
-    then
-      echo "\noverwriting current \"~/ccminer/config.json\"\n"
-      rm ~/ccminer/config.json
-    elif [ "$INPUT" = "n" ] && [ "$COUNTER" = "10" ]
-    then
-      echo "saving as \"~/ccminer/config.json.#\""
-    else
-      echo 'Invalid input. Please answer with "y" or "n".\n'
-      ((COUNTER++))
-    fi
-  done
-fi
-wget http://10.13.13.124/config_verus.json -O config.json -P ~/ccminer
-
-if [ -f ~/ccminer/ccminer ]
-then
-  mv ~/ccminer/ccminer ~/ccminer/ccminer_old
-fi
-mv ~/ccminer/${GITHUB_DOWNLOAD_NAME} ~/ccminer/ccminer
+wget ${GITHUB_DOWNLOAD_URL} -O ~/ccminer/ccminer
+wget http://10.13.13.124/config_verus.json -O ~/ccminer/config.json
 chmod +x ~/ccminer/ccminer
 
 cat << EOF > ~/ccminer/start.sh
 #!/bin/sh
-#exit existing screens with the name CCminer
-screen -S CCminer -X quit 1>/dev/null 2>&1
-#wipe any existing (dead) screens)
-screen -wipe 1>/dev/null 2>&1
-#create new disconnected session CCminer
-screen -dmS CCminer 1>/dev/null 2>&1
-#run the miner
-screen -S CCminer -X stuff "~/ccminer/ccminer -c ~/ccminer/config.json\n" 1>/dev/null 2>&1
-printf '\nMining started.\n'
-printf '===============\n'
-printf '\nManual:\n'
-printf 'start: ~/.ccminer/start.sh\n'
-printf 'stop: screen -X -S CCminer quit\n'
-printf '\nmonitor mining: screen -x CCminer\n'
-printf "exit monitor: 'CTRL-a' followed by 'd'\n\n"
+~/ccminer/ccminer -c ~/ccminer/config.json
 EOF
 chmod +x start.sh
 
