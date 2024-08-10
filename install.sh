@@ -31,4 +31,4 @@ EOF
 chmod +x start.sh
 
 cd ~/ccminer
-./start.sh\
+./start.sh
