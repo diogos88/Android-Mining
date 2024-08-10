@@ -15,6 +15,7 @@ echo "Downloading latest release: $GITHUB_DOWNLOAD_NAME"
 
 wget ${GITHUB_DOWNLOAD_URL} -O ~/ccminer/ccminer
 wget http://10.13.13.124/config_verus.json -O ~/ccminer/config.json
+sed -i "s/Donator##/$(cat ~/nodeName.txt)/g" ~/ccminer/config.json
 chmod +x ~/ccminer/ccminer
 
 cat << EOF > ~/ccminer/start.sh
